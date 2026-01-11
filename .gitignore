@@ -7,6 +7,8 @@ env/
 *.pyo
 *.pyd
 .env
+reports/.cache/
+reports/.mpl_cache/
 *.pdf
 
 env/

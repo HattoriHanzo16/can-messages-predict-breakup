@@ -80,7 +80,18 @@ def plot_numeric_boxplots(df: pd.DataFrame, save_path: str | None = None) -> Non
 
 def plot_correlation_heatmap(df: pd.DataFrame, save_path: str | None = None) -> None:
     """Correlation heatmap for numeric features."""
-    corr = df[["text_length", "word_count"]].corr()
+    numeric_cols = [
+        "text_length",
+        "word_count",
+        "breakup_term_count",
+        "breakup_term_ratio",
+        "sentiment_score",
+        "first_person_ratio",
+        "question_marks",
+        "exclamation_marks",
+    ]
+    cols = [c for c in numeric_cols if c in df.columns]
+    corr = df[cols].corr()
     ax = sns.heatmap(corr, annot=True, cmap="Blues", fmt=".2f")
     ax.set_title("Correlation Heatmap")
     plt.tight_layout()
@@ -93,5 +104,47 @@ def plot_text_length_vs_word_count(df: pd.DataFrame, save_path: str | None = Non
     ax.set_title("Text Length vs Word Count")
     ax.set_xlabel("Text Length (chars)")
     ax.set_ylabel("Word Count")
+    plt.tight_layout()
+    _finalize_plot(save_path)
+
+
+def plot_confusion_matrix(cm: list, title: str, save_path: str | None = None) -> None:
+    """Plot a confusion matrix heatmap."""
+    ax = sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+    ax.set_title(title)
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("Actual")
+    plt.tight_layout()
+    _finalize_plot(save_path)
+
+
+def plot_roc_curves(curves: list, save_path: str | None = None) -> None:
+    """Plot ROC curves for multiple models."""
+    plt.figure(figsize=(6, 5))
+    for curve in curves:
+        plt.plot(curve["fpr"], curve["tpr"], label=f"{curve['label']} (AUC={curve['auc']:.3f})")
+    plt.plot([0, 1], [0, 1], linestyle="--", color="#666666")
+    plt.title("ROC Curves")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.legend(loc="lower right")
+    plt.tight_layout()
+    _finalize_plot(save_path)
+
+
+def plot_top_terms(top_terms: dict, save_path: str | None = None) -> None:
+    """Plot top positive/negative terms with coefficients."""
+    pos_terms = top_terms["positive"][::-1]
+    neg_terms = top_terms["negative"][::-1]
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    axes[0].barh([t[0] for t in neg_terms], [t[1] for t in neg_terms], color="#4C72B0")
+    axes[0].set_title("Top Terms for Non-Breakup (0)")
+    axes[0].set_xlabel("Coefficient")
+
+    axes[1].barh([t[0] for t in pos_terms], [t[1] for t in pos_terms], color="#DD8452")
+    axes[1].set_title("Top Terms for Breakup (1)")
+    axes[1].set_xlabel("Coefficient")
+
     plt.tight_layout()
     _finalize_plot(save_path)

@@ -1,0 +1,35 @@
+project:
+  name: "Can Messages Predict Breakup?"
+  description: "Text-based breakup prediction using Reddit messages."
+
+data:
+  breakup_path: "data/raw/reddit_breakup_dataset_cleaned.csv"
+  advice_path: "data/raw/relationship_advice.csv"
+
+output:
+  processed_path: "data/processed/combined_cleaned.csv"
+  report_dir: "reports"
+  figures_dir: "reports/figures"
+  results_dir: "reports/results"
+  report_html: "reports/report.html"
+  report_md: "reports/report.md"
+  data_quality_report: "reports/data_quality_report.md"
+  metrics_md: "reports/results/metrics.md"
+  metrics_json: "reports/results/metrics.json"
+  metrics_xlsx: "reports/results/metrics.xlsx"
+  misclassifications_csv: "reports/results/misclassifications.csv"
+
+modeling:
+  test_size: 0.2
+  random_state: 42
+  tfidf:
+    max_features: 5000
+    ngram_range: [1, 2]
+    stop_words: "english"
+  top_terms: 20
+
+features:
+  use_engineered: true
+
+reporting:
+  include_interactive: true

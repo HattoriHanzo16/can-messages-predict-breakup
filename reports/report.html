@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Can Messages Predict Breakup?</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; color: #1a1a1a; }
+    h1, h2 { color: #102a43; }
+    .section { margin-bottom: 28px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .card { border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; background: #fafafa; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #e0e0e0; padding: 6px 8px; font-size: 14px; }
+    th { background: #f0f4f8; text-align: left; }
+    .muted { color: #52606d; }
+    .figure { width: 100%; max-width: 700px; }
+  </style>
+</head>
+<body>
+  <h1>Can Messages Predict Breakup?</h1>
+  <p class="muted">Text-based breakup prediction using Reddit messages.</p>
+
+  <div class="section">
+    <h2>Executive Summary</h2>
+    <p>Message content shows strong predictive power for breakup-related posts. The top-performing model (Linear Svm) achieved an F1 score of 0.860 and ROC-AUC of 0.958, indicating reliable detection of breakup language patterns using text alone.</p>
+  </div>
+
+  <div class="section grid">
+    <div class="card">
+      <h3>Dataset</h3>
+      <ul>
+        <li>Total rows: 2728</li>
+        <li>Breakup posts: 945</li>
+        <li>Non-breakup posts: 1783</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Model Winner</h3>
+      <p>Linear Svm (F1: 0.860)</p>
+      <p class="muted">Chosen by best F1 score.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Model Performance</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Accuracy</th>
+          <th>Precision</th>
+          <th>Recall</th>
+          <th>F1</th>
+          <th>ROC-AUC</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Logistic Regression</td><td>0.868</td><td>0.806</td><td>0.815</td><td>0.811</td><td>0.9390422835800988</td></tr><tr><td>Decision Tree</td><td>0.800</td><td>0.725</td><td>0.683</td><td>0.703</td><td>0.7745764972655729</td></tr><tr><td>Linear Svm</td><td>0.905</td><td>0.874</td><td>0.847</td><td>0.860</td><td>0.957983193277311</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Top Predictive Terms (Breakup vs Non-breakup)</h2>
+    <div class="grid">
+      <div class="card">
+        <h4>Breakup-indicative</h4>
+        <ul><li><strong>breakup</strong>: 1.919</li><li><strong>broke</strong>: 1.798</li><li><strong>struggling</strong>: 1.560</li><li><strong>miss</strong>: 1.505</li><li><strong>breakups</strong>: 1.423</li><li><strong>pain</strong>: 1.331</li><li><strong>did</strong>: 1.159</li><li><strong>days</strong>: 1.153</li><li><strong>breaking</strong>: 1.133</li><li><strong>wasn</strong>: 1.125</li><li><strong>days ago</strong>: 1.122</li><li><strong>friends family</strong>: 1.122</li><li><strong>healing</strong>: 1.121</li><li><strong>love</strong>: 1.120</li><li><strong>new</strong>: 1.100</li><li><strong>message</strong>: 1.086</li><li><strong>dogs</strong>: 1.058</li><li><strong>anymore</strong>: 1.050</li><li><strong>end</strong>: 1.014</li><li><strong>song</strong>: 1.013</li></ul>
+      </div>
+      <div class="card">
+        <h4>Non-breakup indicative</h4>
+        <ul><li><strong>comment</strong>: -4.665</li><li><strong>christmas</strong>: -1.683</li><li><strong>boyfriend</strong>: -1.494</li><li><strong>husband</strong>: -1.489</li><li><strong>bf</strong>: -1.422</li><li><strong>really</strong>: -1.298</li><li><strong>thinks</strong>: -1.214</li><li><strong>school</strong>: -1.199</li><li><strong>gf</strong>: -1.199</li><li><strong>tldr</strong>: -1.169</li><li><strong>tell</strong>: -1.096</li><li><strong>hurtful</strong>: -1.073</li><li><strong>explanation</strong>: -1.058</li><li><strong>began</strong>: -1.037</li><li><strong>asked</strong>: -1.021</li><li><strong>partner</strong>: -1.002</li><li><strong>messaged</strong>: -0.990</li><li><strong>sex</strong>: -0.989</li><li><strong>situation</strong>: -0.979</li><li><strong>does</strong>: -0.976</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Key Figures</h2>
+    <div class="grid">
+      <img class="figure" src="figures/class_balance.png" alt="figures/class_balance.png" /><img class="figure" src="figures/text_length_distribution.png" alt="figures/text_length_distribution.png" /><img class="figure" src="figures/word_count_distribution.png" alt="figures/word_count_distribution.png" /><img class="figure" src="figures/text_length_by_class.png" alt="figures/text_length_by_class.png" /><img class="figure" src="figures/correlation_heatmap.png" alt="figures/correlation_heatmap.png" /><img class="figure" src="figures/confusion_matrix_logistic_regression.png" alt="figures/confusion_matrix_logistic_regression.png" /><img class="figure" src="figures/confusion_matrix_decision_tree.png" alt="figures/confusion_matrix_decision_tree.png" /><img class="figure" src="figures/confusion_matrix_linear_svm.png" alt="figures/confusion_matrix_linear_svm.png" /><img class="figure" src="figures/roc_curves.png" alt="figures/roc_curves.png" /><img class="figure" src="figures/top_terms_linear_svm.png" alt="figures/top_terms_linear_svm.png" />
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Error Analysis</h2>
+    <p>The best model (linear svm) misclassified 52 posts. False positives often involve general relationship conflict language, while false negatives tend to be subtle breakup narratives without explicit breakup terms.</p>
+  </div>
+
+  <div class="section">
+    <h2>Limitations</h2>
+    <ul>
+      <li>Labels are proxy-based on subreddit topic, not verified outcomes.</li><li>Language patterns may reflect subreddit style rather than real-world breakup signals.</li><li>This is a single train/test split; performance may vary across samples.</li>
+    </ul>
+  </div>
+
+</body>
+</html>

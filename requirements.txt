@@ -4,4 +4,6 @@ matplotlib==3.8.4
 seaborn==0.13.2
 scikit-learn==1.4.2
 scipy==1.13.1
-jupyterlab>=4.0.0
+plotly==5.22.0
+pyyaml==6.0.2
+openpyxl==3.1.5
