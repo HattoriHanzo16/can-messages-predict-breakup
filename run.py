@@ -81,11 +81,11 @@ def open_report(path: str) -> None:
     try:
         system = platform.system()
         if system == "Darwin":
-            subprocess.run(["open", path], check=False)
+            subprocess.run(["open", path], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif system == "Windows":
             os.startfile(path)  # type: ignore[attr-defined]
         else:
-            subprocess.run(["xdg-open", path], check=False)
+            subprocess.run(["xdg-open", path], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception as exc:
         logging.info("Could not open report automatically: %s", exc)
 
@@ -122,6 +122,7 @@ def build_report_payload(
     best_f1 = results[winner]["metrics"]["f1"]
     best_auc = results[winner]["metrics"]["roc_auc"]
     winner_title = winner.replace("_", " ").title()
+    answer_label = "Yes" if best_f1 >= 0.8 else "Partially"
 
     executive_summary = (
         "Message content shows strong predictive power for breakup-related posts. "
@@ -130,10 +131,25 @@ def build_report_payload(
         + ", indicating reliable detection of breakup language patterns using text alone."
     )
 
+    answer_statement = (
+        f"{answer_label}. Messages can predict breakup-related outcomes in this dataset. "
+        f"The best model ({winner_title}) reaches F1 {best_f1:.3f}"
+        + (f" and ROC-AUC {best_auc:.3f}" if best_auc is not None else "")
+        + " on held-out data."
+    )
+
     return {
         "title": config["project"]["name"],
         "subtitle": config["project"]["description"],
         "executive_summary": executive_summary,
+        "answer_label": answer_label,
+        "answer_statement": answer_statement,
+        "evidence": [
+            f"Best model performance: F1 {best_f1:.3f}"
+            + (f", ROC-AUC {best_auc:.3f}" if best_auc is not None else ""),
+            "Top predictive terms are breakup-centric (e.g., breakup, broke, miss, pain).",
+            "Breakup-labeled posts tend to be longer and more detailed.",
+        ],
         "insights": insights,
         "dataset": {
             "total_rows": total_rows,

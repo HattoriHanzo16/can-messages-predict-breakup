@@ -148,7 +148,9 @@ def generate_html_report(report: dict, output_path: str) -> None:
     figures_html = "".join(
         f"""
         <div class=\"figure-card\">
-          <img class=\"figure\" src=\"{fig['path']}\" alt=\"{fig['title']}\" />
+          <button class=\"figure-button\" type=\"button\" data-full=\"{fig['path']}\">
+            <img class=\"figure\" src=\"{fig['path']}\" alt=\"{fig['title']}\" />
+          </button>
           <div class=\"figure-caption\">
             <h4>{fig['title']}</h4>
             <p>{fig['caption']}</p>
@@ -230,6 +232,10 @@ def generate_html_report(report: dict, output_path: str) -> None:
       background: var(--card);
       box-shadow: 0 8px 16px rgba(15, 23, 42, 0.05);
     }}
+    .answer-card {{
+      background: linear-gradient(135deg, #e6fcf5, #e3fafc);
+      border: 1px solid #99e9f2;
+    }}
     .button {{
       display: inline-block;
       background: var(--accent);
@@ -279,6 +285,13 @@ def generate_html_report(report: dict, output_path: str) -> None:
       overflow: hidden;
       box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
     }}
+    .figure-button {{
+      border: none;
+      padding: 0;
+      background: transparent;
+      cursor: zoom-in;
+      width: 100%;
+    }}
     .figure {{
       width: 100%;
       display: block;
@@ -297,6 +310,47 @@ def generate_html_report(report: dict, output_path: str) -> None:
       margin: 0;
       padding-left: 18px;
     }}
+    .lightbox {{
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }}
+    .lightbox.open {{
+      opacity: 1;
+      pointer-events: auto;
+    }}
+    .lightbox-content {{
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      max-width: 960px;
+      width: 100%;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.3);
+    }}
+    .lightbox-content img {{
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }}
+    .lightbox-close {{
+      margin-top: 12px;
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+    }}
   </style>
 </head>
 <body>
@@ -306,6 +360,16 @@ def generate_html_report(report: dict, output_path: str) -> None:
   </header>
 
   <main>
+    <section class=\"section\">
+      <div class=\"card answer-card\">
+        <span class=\"badge\">Answer</span>
+        <h2>{report['answer_label']}: Can messages predict breakup?</h2>
+        <p>{report['answer_statement']}</p>
+        <ul>
+          {''.join(f'<li>{item}</li>' for item in report['evidence'])}
+        </ul>
+      </div>
+    </section>
     <section class=\"section\">
       <h2>Executive Summary</h2>
       <p>{report['executive_summary']}</p>
@@ -387,6 +451,30 @@ def generate_html_report(report: dict, output_path: str) -> None:
       </ul>
     </section>
   </main>
+  <div class=\"lightbox\" id=\"lightbox\">
+    <div class=\"lightbox-content\">
+      <img id=\"lightbox-img\" src=\"\" alt=\"Expanded figure\" />
+      <button class=\"lightbox-close\" id=\"lightbox-close\" type=\"button\">Close</button>
+    </div>
+  </div>
+  <script>
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const closeBtn = document.getElementById('lightbox-close');
+    document.querySelectorAll('.figure-button').forEach(btn => {{
+      btn.addEventListener('click', () => {{
+        lightboxImg.src = btn.dataset.full;
+        lightbox.classList.add('open');
+      }});
+    }});
+    const closeLightbox = () => lightbox.classList.remove('open');
+    closeBtn.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (event) => {{
+      if (event.target === lightbox) {{
+        closeLightbox();
+      }}
+    }});
+  </script>
 </body>
 </html>
 """
@@ -412,6 +500,13 @@ def generate_markdown_report(report: dict, output_path: str) -> None:
     lines = [
         f"# {report['title']}",
         report["subtitle"],
+        "",
+        "## Answer to the Research Question",
+        f"{report['answer_label']}: Can messages predict breakup?",
+        report["answer_statement"],
+        "",
+        "Evidence:",
+        "\n".join(f"- {item}" for item in report["evidence"]),
         "",
         "## Executive Summary",
         report["executive_summary"],
