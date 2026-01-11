@@ -1,20 +1,25 @@
 # Data Quality Report
+- Raw rows: 2833
+- Clean rows: 2728
+- Empty text rows (raw): 0
+- Duplicate text rows (raw): 98
 
-## Initial Assessment
-- Two sources: r/BreakUps and r/relationship_advice
-- Total rows (raw): 948 + 1885
-- Text fields include missing values and inconsistent formatting
-- Numeric fields stored as strings
+## Class Balance (cleaned)
+- breakup=1: 945
+- breakup=0: 1783
 
-## Cleaning Actions
-- Combined title + body into a unified `text` field
-- Removed URLs and normalized whitespace
-- Dropped rows with empty text
-- Converted `upvotes/score` and `comments` to numeric
-- Filled numeric missing values with median
-- Capped numeric outliers using IQR
-- Removed duplicate text entries
+## Numeric Summary (cleaned)
+| stat | text_length | word_count |
+| --- | --- | --- |
+| count | 2728.00 | 2728.00 |
+| mean | 1125.44 | 214.90 |
+| std | 1043.81 | 195.05 |
+| min | 8.00 | 2.00 |
+| 25% | 333.75 | 64.00 |
+| 50% | 786.50 | 153.00 |
+| 75% | 1635.00 | 321.00 |
+| max | 3798.50 | 678.50 |
 
-## Known Limitations
-- Labels are proxy (subreddit-based), not verified outcomes
-- Potential topic/style bias between subreddits
+## Notes
+- Labels are proxy based on subreddit source (topic-level, not ground truth).
+- This analysis uses message content only; engagement signals are not used for modeling.

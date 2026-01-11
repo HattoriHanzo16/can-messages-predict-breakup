@@ -1,67 +1,65 @@
 # Can Messages Predict Breakup?
 
 ## Project Overview
-This project investigates whether relationship-related messages can predict a breakup outcome.
-We treat each Reddit post as a conversation-level sample and build a binary classifier using
-text and lightweight metadata features. The core goal is to compare two baseline models and
-interpret which performs better.
+This project tests whether **message content alone** can predict breakup-related posts.
+Each Reddit post is treated as a conversation-level sample, and we train two baseline
+text classifiers (Logistic Regression and Decision Tree) using TF-IDF features.
 
 ## Problem Statement
-Can the language and context in relationship messages indicate a breakup-related outcome?
+Can the language in relationship messages indicate a breakup outcome?
 
 ## Dataset
-We use two Reddit-based datasets stored in `data/raw/`:
-- `reddit_breakup_dataset_cleaned.csv` (positive class: breakup-related posts)
-- `relationship_advice.csv` (negative class: general advice posts)
+Two Reddit datasets stored in `data/raw/`:
+- `reddit_breakup_dataset_cleaned.csv` (label: breakup = 1)
+- `relationship_advice.csv` (label: breakup = 0)
 
 **Labeling strategy (proxy):**
-Posts from r/BreakUps are labeled `breakup = 1`, and posts from r/relationship_advice are
-labeled `breakup = 0`. This is a proxy label based on subreddit topic; results should be
-interpreted with that limitation in mind.
+The label is derived from subreddit source, not verified ground-truth outcomes.
 
-## Repository Structure
+## Repository Structure (Minimal)
 ```
 project/
 |-- data/
 |   |-- raw/
 |   |-- processed/
-|-- notebooks/
-|   |-- 01_data_exploration.ipynb
-|   |-- 02_data_preprocessing.ipynb
-|   |-- 03_eda_visualization.ipynb
-|   |-- 04_machine_learning.ipynb
+|-- reports/
+|   |-- figures/
+|   |-- results/
+|-- scripts/
+|   |-- run_full_analysis.py
 |-- src/
 |   |-- __init__.py
 |   |-- data_processing.py
 |   |-- visualization.py
-|   |-- models.py
-|-- reports/
-|   |-- figures/
-|   |-- results/
-|-- README.md
-|-- CONTRIBUTIONS.md
 |-- requirements.txt
-|-- .gitignore
+|-- README.md
 ```
 
-## Setup
+## Setup (if needed)
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv env
+source env/bin/activate
 pip install -r requirements.txt
 ```
 
-## Usage
-Run notebooks in order:
-1. `notebooks/01_data_exploration.ipynb`
-2. `notebooks/02_data_preprocessing.ipynb`
-3. `notebooks/03_eda_visualization.ipynb`
-4. `notebooks/04_machine_learning.ipynb`
+## Run (Generates All Results)
+```bash
+env/bin/python scripts/run_full_analysis.py
+```
 
-## Results (to be updated)
-- Baseline metrics for Logistic Regression and Decision Tree
-- Model comparison and key insights
+## Outputs
+- `data/processed/combined_cleaned.csv`
+- `reports/data_quality_report.md`
+- `reports/results/metrics.md`
+- `reports/results/metrics.json`
+- `reports/figures/*.png`
+
+## Latest Results (from current run)
+- Logistic Regression: Accuracy 0.9029, Precision 0.8469, Recall 0.8783, F1 0.8623
+- Decision Tree: Accuracy 0.8132, Precision 0.7231, Recall 0.7460, F1 0.7344
+
+See `reports/results/metrics.md` for full details and `reports/figures/` for charts.
 
 ## Notes
-- This is a conversation-level classification project.
-- The dataset labeling is based on subreddit topic, not verified ground truth.
+- Models use **text only** (no engagement or metadata signals).
+- Labels are proxy and may reflect subreddit-specific language.

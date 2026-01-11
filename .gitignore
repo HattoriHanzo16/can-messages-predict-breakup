@@ -1,6 +1,7 @@
 __pycache__/
 .ipynb_checkpoints/
 .venv/
+env/
 .DS_Store
 *.pyc
 *.pyo
@@ -9,3 +10,5 @@ __pycache__/
 *.pdf
 
 env/
+
+.mpl_cache

@@ -56,11 +56,9 @@ def _standardize_breakup(df: pd.DataFrame) -> pd.DataFrame:
     """Select and rename fields from the breakup dataset."""
     df = df.copy()
     df["text"] = (df["title"].fillna("") + " " + df["body"].fillna("")).str.strip()
-    df["upvotes_num"] = pd.to_numeric(df.get("upvotes"), errors="coerce")
-    df["comments_num"] = pd.to_numeric(df.get("comments_count"), errors="coerce")
     df["source"] = "breakup"
     df["breakup"] = 1
-    keep = ["text", "upvotes_num", "comments_num", "source", "breakup"]
+    keep = ["text", "source", "breakup"]
     return df[keep]
 
 
@@ -68,11 +66,9 @@ def _standardize_advice(df: pd.DataFrame) -> pd.DataFrame:
     """Select and rename fields from the advice dataset."""
     df = df.copy()
     df["text"] = (df["title"].fillna("") + " " + df["body"].fillna("")).str.strip()
-    df["upvotes_num"] = pd.to_numeric(df.get("score"), errors="coerce")
-    df["comments_num"] = pd.to_numeric(df.get("comms_num"), errors="coerce")
     df["source"] = "advice"
     df["breakup"] = 0
-    keep = ["text", "upvotes_num", "comments_num", "source", "breakup"]
+    keep = ["text", "source", "breakup"]
     return df[keep]
 
 
@@ -102,7 +98,7 @@ def handle_missing(df: pd.DataFrame) -> pd.DataFrame:
     """Handle missing values and drop empty texts."""
     df = df.copy()
     df = df[df["text"].astype(str).str.len() > 0]
-    for col in ["upvotes_num", "comments_num", "text_length", "word_count"]:
+    for col in ["text_length", "word_count"]:
         if col in df.columns:
             df[col] = df[col].fillna(df[col].median())
     return df
@@ -130,7 +126,7 @@ def preprocess_pipeline(breakup_path: str, advice_path: str) -> pd.DataFrame:
         df = clean_text(df)
         df = add_text_features(df)
         df = handle_missing(df)
-        df = cap_outliers_iqr(df, ("upvotes_num", "comments_num"))
+        df = cap_outliers_iqr(df, ("text_length", "word_count"))
         df = df.drop_duplicates(subset=["text"])
         return df
     except Exception as exc:
