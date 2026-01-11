@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Breakup Signal Live Demo</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Playfair+Display:wght@600&display=swap");
+
+    :root {
+      --ink: #0b1320;
+      --muted: #52606d;
+      --accent: #0b7285;
+      --accent-2: #1c7ed6;
+      --accent-3: #f59f00;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top, #e3fafc, #f8fafc 45%, #ffffff 100%);
+      min-height: 100vh;
+    }
+
+    .hero {
+      padding: 36px 28px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-family: "Playfair Display", "Times New Roman", serif;
+      font-size: 2.4rem;
+      margin: 0 0 8px;
+      color: #072736;
+    }
+
+    .hero p {
+      margin: 0 auto;
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 24px 60px;
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      color: var(--accent);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.98rem;
+      line-height: 1.5;
+      resize: vertical;
+      background: #fdfefe;
+    }
+
+    .metrics {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .signal-panel {
+      display: grid;
+      gap: 16px;
+    }
+
+    .risk-box {
+      padding: 14px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #e6fcf5, #e7f5ff);
+      border: 1px solid #99e9f2;
+    }
+
+    .risk-score {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #0c8599;
+    }
+
+    .risk-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .risk-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8, #f59f00, #e8590c);
+      transition: width 0.4s ease;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #0b1320;
+      background: #f1f5f9;
+    }
+
+    .signal-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .button {
+      border: none;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .button.secondary {
+      background: #e7f5ff;
+      color: #1864ab;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 12px 24px 30px;
+    }
+
+    @media (max-width: 720px) {
+      .hero h1 {
+        font-size: 1.9rem;
+      }
+      textarea {
+        min-height: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>Breakup Signal Live Demo</h1>
+    <p>Simulate a two-person chat and see how message content shifts sentiment and breakup risk in real time.</p>
+  </section>
+
+  <section class="container">
+    <div class="card">
+      <h2>Person A</h2>
+      <textarea id="textA" placeholder="Type Person A messages here..."></textarea>
+      <div class="metrics" id="metricsA"></div>
+    </div>
+
+    <div class="card">
+      <h2>Person B</h2>
+      <textarea id="textB" placeholder="Type Person B messages here..."></textarea>
+      <div class="metrics" id="metricsB"></div>
+    </div>
+
+    <div class="card signal-panel">
+      <div class="risk-box">
+        <span class="badge">Live Prediction</span>
+        <div class="risk-score" id="riskScore">0%</div>
+        <div class="risk-bar"><div class="risk-fill" id="riskFill"></div></div>
+        <div id="riskLabel" class="metrics"></div>
+        <div class="metrics"><span id="modelStatus">Model: offline heuristic</span></div>
+      </div>
+      <div>
+        <h2>What the model sees</h2>
+        <ul class="signal-list" id="signalList"></ul>
+      </div>
+      <div class="actions">
+        <button class="button" id="sampleBtn">Load Sample Conversation</button>
+        <button class="button secondary" id="clearBtn">Clear All</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    This demo calls the local ML model when the server is running; otherwise it falls back to a lightweight heuristic.
+  </div>
+
+  <script>
+    const BREAKUP_TERMS = [
+      "breakup", "broke", "broken", "break", "dumped", "ex", "exes", "contact",
+      "heartbreak", "heartbroken", "split", "separated", "divorce", "left", "leave", "leaving"
+    ];
+    const POSITIVE = ["love", "loved", "happy", "hope", "support", "trust", "care", "safe", "kind", "good", "better"];
+    const NEGATIVE = ["sad", "hurt", "pain", "angry", "upset", "cry", "cried", "lonely", "anxious", "stress", "cheat", "cheated", "lying", "toxic"];
+    const FIRST_PERSON = ["i", "me", "my", "mine", "we", "our", "us"];
+
+    const textA = document.getElementById("textA");
+    const textB = document.getElementById("textB");
+    const metricsA = document.getElementById("metricsA");
+    const metricsB = document.getElementById("metricsB");
+    const riskScore = document.getElementById("riskScore");
+    const riskFill = document.getElementById("riskFill");
+    const riskLabel = document.getElementById("riskLabel");
+    const modelStatus = document.getElementById("modelStatus");
+    const signalList = document.getElementById("signalList");
+
+    const sampleConversation = {
+      a: "I feel like we keep drifting. I miss how we used to be.\nCan we talk about us?",
+      b: "I care about you but I am overwhelmed.\nI do not know if this is working anymore."
+    };
+
+    function tokenize(text) {
+      return (text.toLowerCase().match(/[a-z']+/g) || []);
+    }
+
+    function countMatches(tokens, list) {
+      const set = new Set(list);
+      return tokens.reduce((acc, token) => acc + (set.has(token) ? 1 : 0), 0);
+    }
+
+    function analyze(text) {
+      const tokens = tokenize(text);
+      const wordCount = tokens.length || 1;
+      const breakupCount = countMatches(tokens, BREAKUP_TERMS);
+      const posCount = countMatches(tokens, POSITIVE);
+      const negCount = countMatches(tokens, NEGATIVE);
+      const firstPersonCount = countMatches(tokens, FIRST_PERSON);
+      const questionMarks = (text.match(/\?/g) || []).length;
+      const exclamMarks = (text.match(/!/g) || []).length;
+
+      return {
+        wordCount,
+        breakupRatio: breakupCount / wordCount,
+        sentiment: (posCount - negCount) / wordCount,
+        negRatio: negCount / wordCount,
+        firstPersonRatio: firstPersonCount / wordCount,
+        questionMarks,
+        exclamMarks,
+        length: text.length
+      };
+    }
+
+    function sigmoid(x) {
+      return 1 / (1 + Math.exp(-x));
+    }
+
+    function formatMetric(label, value) {
+      return `<div class="metric"><span>${label}</span><span>${value}</span></div>`;
+    }
+
+    function updateMetrics(container, analysis) {
+      container.innerHTML = [
+        formatMetric("Words", analysis.wordCount),
+        formatMetric("Sentiment", analysis.sentiment.toFixed(2)),
+        formatMetric("Breakup terms", (analysis.breakupRatio * 100).toFixed(1) + "%"),
+        formatMetric("Negativity", (analysis.negRatio * 100).toFixed(1) + "%"),
+      ].join("");
+    }
+
+    let debounceTimer;
+
+    function applyPrediction(percent, signals, sourceLabel) {
+      riskScore.textContent = `${percent}%`;
+      riskFill.style.width = `${percent}%`;
+
+      let label = "Low risk";
+      if (percent >= 70) label = "High risk";
+      else if (percent >= 45) label = "Moderate risk";
+
+      riskLabel.innerHTML = formatMetric("Risk level", label);
+      modelStatus.textContent = `Model: ${sourceLabel}`;
+
+      signalList.innerHTML = [
+        `Breakup language density: ${(signals.breakupRatio * 100).toFixed(1)}%`,
+        `Average sentiment: ${signals.sentiment.toFixed(2)}`,
+        `Negative language ratio: ${(signals.negRatio * 100).toFixed(1)}%`,
+        `First-person focus: ${(signals.firstPersonRatio * 100).toFixed(1)}%`,
+        `Conversation length: ${signals.wordCount} words`
+      ].map(item => `<li>${item}</li>`).join("");
+    }
+
+    async function fetchPrediction(textAVal, textBVal, fallbackSignals) {
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages_a: textAVal, messages_b: textBVal })
+        });
+
+        if (!response.ok) throw new Error("Request failed");
+        const data = await response.json();
+        const percent = data.probability ? Math.round(data.probability * 100) : (data.prediction ? 65 : 35);
+
+        const signals = {
+          breakupRatio: data.signals.breakup_term_ratio,
+          sentiment: data.signals.sentiment_score,
+          negRatio: fallbackSignals.negRatio,
+          firstPersonRatio: data.signals.first_person_ratio,
+          wordCount: fallbackSignals.wordCount
+        };
+        applyPrediction(percent, signals, `${data.model} (ML)`);
+      } catch (err) {
+        const percent = Math.round(
+          sigmoid(
+            4.2 * fallbackSignals.breakupRatio +
+            2.0 * fallbackSignals.negRatio -
+            1.6 * fallbackSignals.sentiment +
+            0.6 * fallbackSignals.firstPersonRatio +
+            1.2 * fallbackSignals.intensity
+          ) * 100
+        );
+        applyPrediction(percent, fallbackSignals, "offline heuristic");
+      }
+    }
+
+    function update() {
+      const a = analyze(textA.value);
+      const b = analyze(textB.value);
+      updateMetrics(metricsA, a);
+      updateMetrics(metricsB, b);
+
+      const combined = {
+        breakupRatio: (a.breakupRatio + b.breakupRatio) / 2,
+        negRatio: (a.negRatio + b.negRatio) / 2,
+        sentiment: (a.sentiment + b.sentiment) / 2,
+        firstPersonRatio: (a.firstPersonRatio + b.firstPersonRatio) / 2,
+        intensity: (a.questionMarks + a.exclamMarks + b.questionMarks + b.exclamMarks) / (a.wordCount + b.wordCount),
+        wordCount: a.wordCount + b.wordCount
+      };
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetchPrediction(textA.value, textB.value, combined);
+      }, 250);
+    }
+
+    document.getElementById("sampleBtn").addEventListener("click", () => {
+      textA.value = sampleConversation.a;
+      textB.value = sampleConversation.b;
+      update();
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      textA.value = "";
+      textB.value = "";
+      update();
+    });
+
+    textA.addEventListener("input", update);
+    textB.addEventListener("input", update);
+
+    update();
+  </script>
+</body>
+</html>

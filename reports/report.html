@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Can Messages Predict Breakup?</title>
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #475569;
+      --accent: #0b7285;
+      --accent-soft: #e6f6f8;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+    }
+    body {
+      font-family: "IBM Plex Serif", "Source Serif 4", "Merriweather", "Georgia", serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(120deg, #0b7285, #1971c2);
+      color: #ffffff;
+      padding: 36px 40px;
+    }
+    header h1 {
+      margin: 0 0 8px 0;
+      font-size: 2.2rem;
+      letter-spacing: 0.3px;
+    }
+    header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 32px 64px;
+    }
+    .section {
+      margin: 28px 0;
+    }
+    .section h2 {
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--card);
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.05);
+    }
+    .answer-card {
+      background: linear-gradient(135deg, #e6fcf5, #e3fafc);
+      border: 1px solid #99e9f2;
+    }
+    .button {
+      display: inline-block;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      font-size: 14px;
+      text-align: left;
+    }
+    th {
+      background: #eef2ff;
+      color: #1e293b;
+    }
+    .figure-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }
+    .figure-card {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+    }
+    .figure-button {
+      border: none;
+      padding: 0;
+      background: transparent;
+      cursor: zoom-in;
+      width: 100%;
+    }
+    .figure {
+      width: 100%;
+      display: block;
+    }
+    .figure-caption {
+      padding: 12px 14px;
+    }
+    .figure-caption h4 {
+      margin: 0 0 6px 0;
+      color: var(--accent);
+    }
+    .muted {
+      color: var(--muted);
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .lightbox.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .lightbox-content {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      max-width: 960px;
+      width: 100%;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.3);
+    }
+    .lightbox-content img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+    }
+    .lightbox-close {
+      margin-top: 12px;
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Can Messages Predict Breakup?</h1>
+    <p>Text-based breakup prediction using Reddit messages.</p>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="card answer-card">
+        <span class="badge">Answer</span>
+        <h2>Yes: Can messages predict breakup?</h2>
+        <p>Yes. Messages can predict breakup-related outcomes in this dataset. The best model (Linear Svm) reaches F1 0.860 and ROC-AUC 0.958 on held-out data.</p>
+        <ul>
+          <li>Best model performance: F1 0.860, ROC-AUC 0.958</li><li>Top predictive terms are breakup-centric (e.g., breakup, broke, miss, pain).</li><li>Breakup-labeled posts tend to be longer and more detailed.</li>
+        </ul>
+      </div>
+    </section>
+    <section class="section">
+      <h2>Executive Summary</h2>
+      <p>Message content shows strong predictive power for breakup-related posts. The top-performing model (Linear Svm) achieved an F1 score of 0.860 and ROC-AUC of 0.958, indicating reliable detection of breakup language patterns using text alone.</p>
+    </section>
+
+    <section class="section grid">
+      <div class="card">
+        <span class="badge">Dataset</span>
+        <h3>Overview</h3>
+        <ul>
+          <li>Total rows: 2728</li>
+          <li>Breakup posts: 945</li>
+          <li>Non-breakup posts: 1783</li>
+          <li>Breakup share: 34.6%</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="badge">Top Model</span>
+        <h3>Linear Svm</h3>
+        <p class="muted">Best F1 score: 0.860</p>
+        <p class="muted">Selected by balanced precision and recall.</p>
+      </div>
+      <div class="card">
+        <span class="badge">Key Insights</span>
+        <ul><li>Linear Svm delivered the strongest F1 score and overall balance of precision/recall.</li><li>Breakup-related language (e.g., breakup, broke, miss, pain) dominates predictive terms.</li><li>Longer, more detailed posts are more common in breakup-labeled samples.</li></ul>
+      </div>
+      
+        <div class="card">
+          <h3>Interactive Exploration</h3>
+          <p class="muted">Open the interactive scatter plot to explore breakup term density vs sentiment.</p>
+          <a class="button" href="figures/interactive_breakup_signals.html">Open Interactive Chart</a>
+        </div>
+        
+    </section>
+
+    <section class="section">
+      <h2>Model Performance</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1</th>
+            <th>ROC-AUC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Logistic Regression</td><td>0.868</td><td>0.806</td><td>0.815</td><td>0.811</td><td>0.9390422835800988</td></tr><tr><td>Decision Tree</td><td>0.800</td><td>0.725</td><td>0.683</td><td>0.703</td><td>0.7745764972655729</td></tr><tr><td>Linear Svm</td><td>0.905</td><td>0.874</td><td>0.847</td><td>0.860</td><td>0.957983193277311</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Top Predictive Terms</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Breakup-indicative</h3>
+          <ul><li><strong>breakup</strong>: 1.919</li><li><strong>broke</strong>: 1.798</li><li><strong>struggling</strong>: 1.560</li><li><strong>miss</strong>: 1.505</li><li><strong>breakups</strong>: 1.423</li><li><strong>pain</strong>: 1.331</li><li><strong>did</strong>: 1.159</li><li><strong>days</strong>: 1.153</li><li><strong>breaking</strong>: 1.133</li><li><strong>wasn</strong>: 1.125</li><li><strong>days ago</strong>: 1.122</li><li><strong>friends family</strong>: 1.122</li><li><strong>healing</strong>: 1.121</li><li><strong>love</strong>: 1.120</li><li><strong>new</strong>: 1.100</li><li><strong>message</strong>: 1.086</li><li><strong>dogs</strong>: 1.058</li><li><strong>anymore</strong>: 1.050</li><li><strong>end</strong>: 1.014</li><li><strong>song</strong>: 1.013</li></ul>
+        </div>
+        <div class="card">
+          <h3>Non-breakup indicative</h3>
+          <ul><li><strong>comment</strong>: -4.665</li><li><strong>christmas</strong>: -1.683</li><li><strong>boyfriend</strong>: -1.494</li><li><strong>husband</strong>: -1.489</li><li><strong>bf</strong>: -1.422</li><li><strong>really</strong>: -1.298</li><li><strong>thinks</strong>: -1.214</li><li><strong>school</strong>: -1.199</li><li><strong>gf</strong>: -1.199</li><li><strong>tldr</strong>: -1.169</li><li><strong>tell</strong>: -1.096</li><li><strong>hurtful</strong>: -1.073</li><li><strong>explanation</strong>: -1.058</li><li><strong>began</strong>: -1.037</li><li><strong>asked</strong>: -1.021</li><li><strong>partner</strong>: -1.002</li><li><strong>messaged</strong>: -0.990</li><li><strong>sex</strong>: -0.989</li><li><strong>situation</strong>: -0.979</li><li><strong>does</strong>: -0.976</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Figures & Explanations</h2>
+      <div class="figure-grid">
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/class_balance.png">
+            <img class="figure" src="figures/class_balance.png" alt="Class Balance" />
+          </button>
+          <div class="figure-caption">
+            <h4>Class Balance</h4>
+            <p>Shows the distribution of breakup vs non-breakup posts. The dataset is mildly imbalanced.</p>
+          </div>
+        </div>
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/text_length_distribution.png">
+            <img class="figure" src="figures/text_length_distribution.png" alt="Text Length Distribution" />
+          </button>
+          <div class="figure-caption">
+            <h4>Text Length Distribution</h4>
+            <p>Most posts are short-to-medium length, with a long tail of detailed narratives.</p>
+          </div>
+        </div>
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/word_count_distribution.png">
+            <img class="figure" src="figures/word_count_distribution.png" alt="Word Count Distribution" />
+          </button>
+          <div class="figure-caption">
+            <h4>Word Count Distribution</h4>
+            <p>Word count mirrors text length, highlighting the prevalence of concise posts.</p>
+          </div>
+        </div>
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/text_length_by_class.png">
+            <img class="figure" src="figures/text_length_by_class.png" alt="Text Length by Label" />
+          </button>
+          <div class="figure-caption">
+            <h4>Text Length by Label</h4>
+            <p>Breakup posts tend to be longer, suggesting more detailed emotional accounts.</p>
+          </div>
+        </div>
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/correlation_heatmap.png">
+            <img class="figure" src="figures/correlation_heatmap.png" alt="Feature Correlations" />
+          </button>
+          <div class="figure-caption">
+            <h4>Feature Correlations</h4>
+            <p>Highlights relationships among engineered signals (length, terms, sentiment, punctuation).</p>
+          </div>
+        </div>
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/confusion_matrix_logistic_regression.png">
+            <img class="figure" src="figures/confusion_matrix_logistic_regression.png" alt="Confusion Matrix: Logistic Regression" />
+          </button>
+          <div class="figure-caption">
+            <h4>Confusion Matrix: Logistic Regression</h4>
+            <p>Shows how many posts were correctly and incorrectly classified.</p>
+          </div>
+        </div>
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/confusion_matrix_decision_tree.png">
+            <img class="figure" src="figures/confusion_matrix_decision_tree.png" alt="Confusion Matrix: Decision Tree" />
+          </button>
+          <div class="figure-caption">
+            <h4>Confusion Matrix: Decision Tree</h4>
+            <p>Shows how many posts were correctly and incorrectly classified.</p>
+          </div>
+        </div>
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/confusion_matrix_linear_svm.png">
+            <img class="figure" src="figures/confusion_matrix_linear_svm.png" alt="Confusion Matrix: Linear Svm" />
+          </button>
+          <div class="figure-caption">
+            <h4>Confusion Matrix: Linear Svm</h4>
+            <p>Shows how many posts were correctly and incorrectly classified.</p>
+          </div>
+        </div>
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/roc_curves.png">
+            <img class="figure" src="figures/roc_curves.png" alt="ROC Curves" />
+          </button>
+          <div class="figure-caption">
+            <h4>ROC Curves</h4>
+            <p>Compares model discrimination; higher curves indicate stronger separation.</p>
+          </div>
+        </div>
+        
+        <div class="figure-card">
+          <button class="figure-button" type="button" data-full="figures/top_terms_linear_svm.png">
+            <img class="figure" src="figures/top_terms_linear_svm.png" alt="Top Terms: Linear Svm" />
+          </button>
+          <div class="figure-caption">
+            <h4>Top Terms: Linear Svm</h4>
+            <p>Top positive and negative terms from the best model.</p>
+          </div>
+        </div>
+        
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Error Analysis</h2>
+      <p>The best model (Linear Svm) misclassified 52 posts. False positives often involve general relationship conflict language, while false negatives tend to be subtle breakup narratives without explicit breakup terms.</p>
+    </section>
+
+    <section class="section">
+      <h2>Limitations</h2>
+      <ul>
+        <li>Labels are proxy-based on subreddit topic, not verified outcomes.</li><li>Language patterns may reflect subreddit style rather than real-world breakup signals.</li><li>This is a single train/test split; performance may vary across samples.</li>
+      </ul>
+    </section>
+  </main>
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-content">
+      <img id="lightbox-img" src="" alt="Expanded figure" />
+      <button class="lightbox-close" id="lightbox-close" type="button">Close</button>
+    </div>
+  </div>
+  <script>
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const closeBtn = document.getElementById('lightbox-close');
+    document.querySelectorAll('.figure-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        lightboxImg.src = btn.dataset.full;
+        lightbox.classList.add('open');
+      });
+    });
+    const closeLightbox = () => lightbox.classList.remove('open');
+    closeBtn.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+  </script>
+</body>
+</html>

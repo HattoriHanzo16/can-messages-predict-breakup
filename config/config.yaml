@@ -11,6 +11,8 @@ output:
   report_dir: "reports"
   figures_dir: "reports/figures"
   results_dir: "reports/results"
+  model_path: "models/breakup_model.joblib"
+  model_card: "models/model_card.json"
   report_html: "reports/report.html"
   report_md: "reports/report.md"
   data_quality_report: "reports/data_quality_report.md"

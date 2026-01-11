@@ -10,9 +10,11 @@ os.environ.setdefault("MPLCONFIGDIR", str(ROOT / "reports" / ".mpl_cache"))
 os.environ.setdefault("XDG_CACHE_HOME", str(ROOT / "reports" / ".cache"))
 os.environ.setdefault("MPLBACKEND", "Agg")
 
+import json
 import warnings
 
 import pandas as pd
+from joblib import dump
 from sklearn.metrics import roc_curve
 
 from src.config import load_config
@@ -183,6 +185,7 @@ def main() -> None:
         config["output"]["report_dir"],
         config["output"]["figures_dir"],
         config["output"]["results_dir"],
+        str(Path(config["output"]["model_path"]).parent),
     )
 
     logging.info("Loading and preprocessing data...")
@@ -274,6 +277,20 @@ def main() -> None:
         save_excel_report(results, feature_summary, misclass_df, config["output"]["metrics_xlsx"])
     except ImportError as exc:
         logging.info(str(exc))
+
+    model_artifact = {
+        "model_name": winner,
+        "numeric_features": numeric_features,
+        "metrics": results[winner]["metrics"],
+    }
+    dump(
+        {
+            "pipeline": artifacts[winner].pipeline,
+            "metadata": model_artifact,
+        },
+        config["output"]["model_path"],
+    )
+    Path(config["output"]["model_card"]).write_text(json.dumps(model_artifact, indent=2))
 
     report_dir = Path(config["output"]["report_dir"])
     figures_dir = Path(config["output"]["figures_dir"])
@@ -377,6 +394,7 @@ def main() -> None:
     logging.info(f"- {config['output']['metrics_json']}")
     logging.info(f"- {config['output']['report_html']}")
     logging.info(f"- {config['output']['report_md']}")
+    logging.info(f"- {config['output']['model_path']}")
 
 
 if __name__ == "__main__":

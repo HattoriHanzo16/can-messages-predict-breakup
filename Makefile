@@ -3,7 +3,8 @@ PY := python
 VENV := env
 CONFIG := config/config.yaml
 
-.PHONY: help setup run clean clean-reports clean-cache
+.PHONY: help setup run serve clean clean-reports clean-cache
+.PHONY: demo
 
 help:
 	@echo "Targets:"
@@ -20,6 +21,9 @@ setup:
 run:
 	$(VENV)/bin/python run.py --config $(CONFIG)
 
+serve:
+	$(VENV)/bin/python serve.py --config $(CONFIG)
+
 clean:
 	rm -rf data/processed/* reports/results/* reports/figures/* reports/report.html reports/report.md
 
@@ -28,3 +32,8 @@ clean-reports:
 
 clean-cache:
 	rm -rf reports/.cache reports/.mpl_cache
+
+demo:
+	@if command -v open >/dev/null 2>&1; then open demo/breakup_simulator.html; \
+	elif command -v xdg-open >/dev/null 2>&1; then xdg-open demo/breakup_simulator.html; \
+	else echo "Open demo/breakup_simulator.html in your browser."; fi

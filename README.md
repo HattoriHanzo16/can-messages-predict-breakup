@@ -1,48 +1,80 @@
 # Can Messages Predict Breakup?
 
 ## Overview
-This is a production-grade analysis pipeline that answers one question: **Can message content predict breakups?**
-It uses Reddit posts as conversation-level samples and trains three models (Logistic Regression, Decision Tree,
-Linear SVM) on TF-IDF text plus engineered linguistic signals.
+This project answers one question: **Can message content predict breakups?**
+We analyze relationship-related Reddit posts, engineer text signals, and compare three models
+(Logistic Regression, Decision Tree, Linear SVM). The results are packaged into a
+conference-ready HTML report plus supporting artifacts.
 
-## Quick Start
+## Prerequisites
+- Python 3.10+ installed
+- macOS / Linux / Windows
+
+## Setup (Recommended)
 ```bash
 make setup
-make run
 ```
 
-## Auto-open Report
-To open the HTML report automatically after the run completes, set:
+## Run the Full Pipeline
+```bash
+make run
+```
+This generates the cleaned dataset, figures, model metrics, and reports.
+
+## Open the Report
+The HTML report is here:
+- `reports/report.html`
+
+To auto-open after every run, set in `config/config.yaml`:
 ```
 reporting:
   open_report: true
 ```
-in `config/config.yaml`.
 
-## What the Pipeline Produces
+## Live Demo (ML-Backed)
+Run the model server and open the interactive demo:
+```bash
+make run
+make serve
+```
+Then open:
+- `http://127.0.0.1:5000`
+
+If the server is not running, the demo still works using a lightweight fallback heuristic.
+
+## Outputs (What You Get)
 - Cleaned dataset: `data/processed/combined_cleaned.csv`
 - Data quality report: `reports/data_quality_report.md`
-- Full metrics: `reports/results/metrics.md` + `reports/results/metrics.json`
-- Excel report (metrics + feature summary + misclassifications): `reports/results/metrics.xlsx`
-- HTML report: `reports/report.html`
+- Metrics: `reports/results/metrics.md`, `reports/results/metrics.json`
+- Misclassifications: `reports/results/misclassifications.csv`
+- Excel report (if `openpyxl` installed): `reports/results/metrics.xlsx`
+- Main report: `reports/report.html` + `reports/report.md`
 - Figures: `reports/figures/*.png`
-- Optional interactive plot: `reports/figures/interactive_breakup_signals.html`
+- Interactive chart (if Plotly installed): `reports/figures/interactive_breakup_signals.html`
+- Saved model: `models/breakup_model.joblib`
 
 ## Configuration
-Edit `config/config.yaml` to adjust:
+Edit `config/config.yaml` to change:
 - dataset paths
-- TF-IDF settings
-- test split
+- test split and TF-IDF settings
 - output locations
+- report behavior
 
-## Dependencies
-Install with:
+## Useful Make Targets
 ```bash
-pip install -r requirements.txt
+make setup         # create env + install deps
+make run           # run full pipeline
+make serve         # serve the ML-backed demo
+make clean         # remove processed data + reports
+make clean-reports # remove reports only
+make clean-cache   # remove matplotlib caches
 ```
+
+## Troubleshooting
+- **Excel export missing:** install `openpyxl` then re-run.
+- **Interactive chart missing:** install `plotly` then re-run.
+- **Demo server missing:** install `flask` then re-run.
 
 ## Notes
 - Labels are proxy-based on subreddit topic, not verified outcomes.
 - Models use message content only; engagement metadata is excluded.
-- If Plotly is missing, the interactive chart is skipped gracefully.
-- If openpyxl is missing, Excel export will be skipped with a log message.

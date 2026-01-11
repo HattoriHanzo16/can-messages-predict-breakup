@@ -9,6 +9,7 @@ env/
 .env
 reports/.cache/
 reports/.mpl_cache/
+models/
 *.pdf
 
 env/
