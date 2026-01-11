@@ -1,6 +1,8 @@
 import argparse
 import logging
 import os
+import platform
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -73,6 +75,19 @@ def save_interactive_plot(df: pd.DataFrame, output_path: str) -> bool:
     )
     fig.write_html(output_path)
     return True
+
+
+def open_report(path: str) -> None:
+    try:
+        system = platform.system()
+        if system == "Darwin":
+            subprocess.run(["open", path], check=False)
+        elif system == "Windows":
+            os.startfile(path)  # type: ignore[attr-defined]
+        else:
+            subprocess.run(["xdg-open", path], check=False)
+    except Exception as exc:
+        logging.info("Could not open report automatically: %s", exc)
 
 
 def build_report_payload(
@@ -335,6 +350,9 @@ def main() -> None:
 
     generate_html_report(report_payload, config["output"]["report_html"])
     generate_markdown_report(report_payload, config["output"]["report_md"])
+
+    if config.get("reporting", {}).get("open_report", False):
+        open_report(config["output"]["report_html"])
 
     logging.info("Reports generated:")
     logging.info(f"- {config['output']['processed_path']}")

@@ -33,3 +33,4 @@ features:
 
 reporting:
   include_interactive: true
+  open_report: true

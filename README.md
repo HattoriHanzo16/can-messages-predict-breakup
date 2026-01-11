@@ -11,6 +11,14 @@ make setup
 make run
 ```
 
+## Auto-open Report
+To open the HTML report automatically after the run completes, set:
+```
+reporting:
+  open_report: true
+```
+in `config/config.yaml`.
+
 ## What the Pipeline Produces
 - Cleaned dataset: `data/processed/combined_cleaned.csv`
 - Data quality report: `reports/data_quality_report.md`
