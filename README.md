@@ -7,11 +7,8 @@ Linear SVM) on TF-IDF text plus engineered linguistic signals.
 
 ## Quick Start
 ```bash
-# activate your env first if needed
-source env/bin/activate
-
-# run the full pipeline
-python run.py --config config/config.yaml
+make setup
+make run
 ```
 
 ## What the Pipeline Produces

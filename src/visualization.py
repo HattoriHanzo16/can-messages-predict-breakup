@@ -7,7 +7,11 @@ import seaborn as sns
 import pandas as pd
 
 
-sns.set_theme(style="whitegrid")
+PRIMARY = "#0b7285"
+SECONDARY = "#1971c2"
+ACCENT = "#f59f00"
+
+sns.set_theme(style="whitegrid", palette="crest", context="talk")
 
 
 def _finalize_plot(save_path: str | None) -> None:
@@ -25,7 +29,7 @@ def plot_class_balance(
     save_path: str | None = None,
 ) -> None:
     """Plot class distribution for the label."""
-    ax = sns.countplot(data=df, x=label_col)
+    ax = sns.countplot(data=df, x=label_col, hue=label_col, palette=[PRIMARY, ACCENT], legend=False)
     ax.set_title("Class Balance")
     ax.set_xlabel("Breakup Label")
     ax.set_ylabel("Count")
@@ -35,7 +39,8 @@ def plot_class_balance(
 
 def plot_text_length_distribution(df: pd.DataFrame, save_path: str | None = None) -> None:
     """Histogram of text lengths."""
-    ax = sns.histplot(df["text_length"], bins=50, kde=True)
+    plt.figure(figsize=(7, 4))
+    ax = sns.histplot(df["text_length"], bins=50, kde=True, color=PRIMARY)
     ax.set_title("Text Length Distribution")
     ax.set_xlabel("Text Length (chars)")
     ax.set_ylabel("Count")
@@ -45,7 +50,8 @@ def plot_text_length_distribution(df: pd.DataFrame, save_path: str | None = None
 
 def plot_word_count_distribution(df: pd.DataFrame, save_path: str | None = None) -> None:
     """Histogram of word counts."""
-    ax = sns.histplot(df["word_count"], bins=50, kde=True)
+    plt.figure(figsize=(7, 4))
+    ax = sns.histplot(df["word_count"], bins=50, kde=True, color=SECONDARY)
     ax.set_title("Word Count Distribution")
     ax.set_xlabel("Word Count")
     ax.set_ylabel("Count")
@@ -59,7 +65,8 @@ def plot_text_length_by_class(
     save_path: str | None = None,
 ) -> None:
     """Box plot of text length by class label."""
-    ax = sns.boxplot(data=df, x=label_col, y="text_length")
+    plt.figure(figsize=(7, 4))
+    ax = sns.boxplot(data=df, x=label_col, y="text_length", hue=label_col, palette=[PRIMARY, ACCENT], legend=False)
     ax.set_title("Text Length by Breakup Label")
     ax.set_xlabel("Breakup Label")
     ax.set_ylabel("Text Length (chars)")
@@ -70,9 +77,9 @@ def plot_text_length_by_class(
 def plot_numeric_boxplots(df: pd.DataFrame, save_path: str | None = None) -> None:
     """Box plots for numeric columns."""
     fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-    sns.boxplot(y=df["text_length"], ax=axes[0])
+    sns.boxplot(y=df["text_length"], ax=axes[0], color=PRIMARY)
     axes[0].set_title("Text Length")
-    sns.boxplot(y=df["word_count"], ax=axes[1])
+    sns.boxplot(y=df["word_count"], ax=axes[1], color=SECONDARY)
     axes[1].set_title("Word Count")
     plt.tight_layout()
     _finalize_plot(save_path)
@@ -92,7 +99,8 @@ def plot_correlation_heatmap(df: pd.DataFrame, save_path: str | None = None) -> 
     ]
     cols = [c for c in numeric_cols if c in df.columns]
     corr = df[cols].corr()
-    ax = sns.heatmap(corr, annot=True, cmap="Blues", fmt=".2f")
+    plt.figure(figsize=(8, 6))
+    ax = sns.heatmap(corr, annot=True, cmap="YlGnBu", fmt=".2f")
     ax.set_title("Correlation Heatmap")
     plt.tight_layout()
     _finalize_plot(save_path)
@@ -100,7 +108,14 @@ def plot_correlation_heatmap(df: pd.DataFrame, save_path: str | None = None) -> 
 
 def plot_text_length_vs_word_count(df: pd.DataFrame, save_path: str | None = None) -> None:
     """Scatter plot with trend line."""
-    ax = sns.regplot(x="text_length", y="word_count", data=df, scatter_kws={"alpha": 0.5})
+    plt.figure(figsize=(7, 4))
+    ax = sns.regplot(
+        x="text_length",
+        y="word_count",
+        data=df,
+        scatter_kws={"alpha": 0.4, "color": PRIMARY},
+        line_kws={"color": ACCENT},
+    )
     ax.set_title("Text Length vs Word Count")
     ax.set_xlabel("Text Length (chars)")
     ax.set_ylabel("Word Count")
@@ -110,7 +125,8 @@ def plot_text_length_vs_word_count(df: pd.DataFrame, save_path: str | None = Non
 
 def plot_confusion_matrix(cm: list, title: str, save_path: str | None = None) -> None:
     """Plot a confusion matrix heatmap."""
-    ax = sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+    plt.figure(figsize=(5, 4))
+    ax = sns.heatmap(cm, annot=True, fmt="d", cmap="YlGnBu")
     ax.set_title(title)
     ax.set_xlabel("Predicted")
     ax.set_ylabel("Actual")
@@ -120,10 +136,10 @@ def plot_confusion_matrix(cm: list, title: str, save_path: str | None = None) ->
 
 def plot_roc_curves(curves: list, save_path: str | None = None) -> None:
     """Plot ROC curves for multiple models."""
-    plt.figure(figsize=(6, 5))
+    plt.figure(figsize=(7, 5))
     for curve in curves:
         plt.plot(curve["fpr"], curve["tpr"], label=f"{curve['label']} (AUC={curve['auc']:.3f})")
-    plt.plot([0, 1], [0, 1], linestyle="--", color="#666666")
+    plt.plot([0, 1], [0, 1], linestyle="--", color="#94a3b8")
     plt.title("ROC Curves")
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
@@ -138,11 +154,11 @@ def plot_top_terms(top_terms: dict, save_path: str | None = None) -> None:
     neg_terms = top_terms["negative"][::-1]
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-    axes[0].barh([t[0] for t in neg_terms], [t[1] for t in neg_terms], color="#4C72B0")
+    axes[0].barh([t[0] for t in neg_terms], [t[1] for t in neg_terms], color=SECONDARY)
     axes[0].set_title("Top Terms for Non-Breakup (0)")
     axes[0].set_xlabel("Coefficient")
 
-    axes[1].barh([t[0] for t in pos_terms], [t[1] for t in pos_terms], color="#DD8452")
+    axes[1].barh([t[0] for t in pos_terms], [t[1] for t in pos_terms], color=ACCENT)
     axes[1].set_title("Top Terms for Breakup (1)")
     axes[1].set_xlabel("Coefficient")
 

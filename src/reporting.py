@@ -142,103 +142,251 @@ def generate_html_report(report: dict, output_path: str) -> None:
         f"<li><strong>{term}</strong>: {weight:.3f}</li>" for term, weight in report["top_terms"]["negative"]
     )
 
+    insights_html = "".join(f"<li>{item}</li>" for item in report["insights"])
+    limitations_html = "".join(f"<li>{item}</li>" for item in report["limitations"])
+
+    figures_html = "".join(
+        f"""
+        <div class=\"figure-card\">
+          <img class=\"figure\" src=\"{fig['path']}\" alt=\"{fig['title']}\" />
+          <div class=\"figure-caption\">
+            <h4>{fig['title']}</h4>
+            <p>{fig['caption']}</p>
+          </div>
+        </div>
+        """
+        for fig in report["figures"]
+    )
+
+    interactive_html = ""
+    if report.get("interactive_link"):
+        interactive_html = f"""
+        <div class=\"card\">
+          <h3>Interactive Exploration</h3>
+          <p class=\"muted\">Open the interactive scatter plot to explore breakup term density vs sentiment.</p>
+          <a class=\"button\" href=\"{report['interactive_link']}\">Open Interactive Chart</a>
+        </div>
+        """
+
     html = f"""
 <!DOCTYPE html>
-<html lang="en">
+<html lang=\"en\">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset=\"UTF-8\" />
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
   <title>{report['title']}</title>
   <style>
-    body {{ font-family: Arial, sans-serif; margin: 24px; color: #1a1a1a; }}
-    h1, h2 {{ color: #102a43; }}
-    .section {{ margin-bottom: 28px; }}
-    .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }}
-    .card {{ border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; background: #fafafa; }}
-    table {{ border-collapse: collapse; width: 100%; }}
-    th, td {{ border: 1px solid #e0e0e0; padding: 6px 8px; font-size: 14px; }}
-    th {{ background: #f0f4f8; text-align: left; }}
-    .muted {{ color: #52606d; }}
-    .figure {{ width: 100%; max-width: 700px; }}
+    :root {{
+      --ink: #0f172a;
+      --muted: #475569;
+      --accent: #0b7285;
+      --accent-soft: #e6f6f8;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+    }}
+    body {{
+      font-family: \"IBM Plex Serif\", \"Source Serif 4\", \"Merriweather\", \"Georgia\", serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }}
+    header {{
+      background: linear-gradient(120deg, #0b7285, #1971c2);
+      color: #ffffff;
+      padding: 36px 40px;
+    }}
+    header h1 {{
+      margin: 0 0 8px 0;
+      font-size: 2.2rem;
+      letter-spacing: 0.3px;
+    }}
+    header p {{
+      margin: 0;
+      opacity: 0.9;
+    }}
+    main {{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 32px 64px;
+    }}
+    .section {{
+      margin: 28px 0;
+    }}
+    .section h2 {{
+      margin-bottom: 12px;
+      color: var(--accent);
+    }}
+    .grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }}
+    .card {{
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--card);
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.05);
+    }}
+    .button {{
+      display: inline-block;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }}
+    .badge {{
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }}
+    table {{
+      border-collapse: collapse;
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }}
+    th, td {{
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      font-size: 14px;
+      text-align: left;
+    }}
+    th {{
+      background: #eef2ff;
+      color: #1e293b;
+    }}
+    .figure-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }}
+    .figure-card {{
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+    }}
+    .figure {{
+      width: 100%;
+      display: block;
+    }}
+    .figure-caption {{
+      padding: 12px 14px;
+    }}
+    .figure-caption h4 {{
+      margin: 0 0 6px 0;
+      color: var(--accent);
+    }}
+    .muted {{
+      color: var(--muted);
+    }}
+    ul {{
+      margin: 0;
+      padding-left: 18px;
+    }}
   </style>
 </head>
 <body>
-  <h1>{report['title']}</h1>
-  <p class="muted">{report['subtitle']}</p>
+  <header>
+    <h1>{report['title']}</h1>
+    <p>{report['subtitle']}</p>
+  </header>
 
-  <div class="section">
-    <h2>Executive Summary</h2>
-    <p>{report['executive_summary']}</p>
-  </div>
+  <main>
+    <section class=\"section\">
+      <h2>Executive Summary</h2>
+      <p>{report['executive_summary']}</p>
+    </section>
 
-  <div class="section grid">
-    <div class="card">
-      <h3>Dataset</h3>
+    <section class=\"section grid\">
+      <div class=\"card\">
+        <span class=\"badge\">Dataset</span>
+        <h3>Overview</h3>
+        <ul>
+          <li>Total rows: {report['dataset']['total_rows']}</li>
+          <li>Breakup posts: {report['dataset']['breakup_rows']}</li>
+          <li>Non-breakup posts: {report['dataset']['non_breakup_rows']}</li>
+          <li>Breakup share: {report['dataset']['breakup_ratio']:.1%}</li>
+        </ul>
+      </div>
+      <div class=\"card\">
+        <span class=\"badge\">Top Model</span>
+        <h3>{report['winner']['name']}</h3>
+        <p class=\"muted\">Best F1 score: {report['winner']['f1']:.3f}</p>
+        <p class=\"muted\">Selected by balanced precision and recall.</p>
+      </div>
+      <div class=\"card\">
+        <span class=\"badge\">Key Insights</span>
+        <ul>{insights_html}</ul>
+      </div>
+      {interactive_html}
+    </section>
+
+    <section class=\"section\">
+      <h2>Model Performance</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1</th>
+            <th>ROC-AUC</th>
+          </tr>
+        </thead>
+        <tbody>
+          {metrics_rows}
+        </tbody>
+      </table>
+    </section>
+
+    <section class=\"section\">
+      <h2>Top Predictive Terms</h2>
+      <div class=\"grid\">
+        <div class=\"card\">
+          <h3>Breakup-indicative</h3>
+          <ul>{top_terms_html}</ul>
+        </div>
+        <div class=\"card\">
+          <h3>Non-breakup indicative</h3>
+          <ul>{top_terms_neg_html}</ul>
+        </div>
+      </div>
+    </section>
+
+    <section class=\"section\">
+      <h2>Figures & Explanations</h2>
+      <div class=\"figure-grid\">
+        {figures_html}
+      </div>
+    </section>
+
+    <section class=\"section\">
+      <h2>Error Analysis</h2>
+      <p>{report['error_analysis']}</p>
+    </section>
+
+    <section class=\"section\">
+      <h2>Limitations</h2>
       <ul>
-        <li>Total rows: {report['dataset']['total_rows']}</li>
-        <li>Breakup posts: {report['dataset']['breakup_rows']}</li>
-        <li>Non-breakup posts: {report['dataset']['non_breakup_rows']}</li>
+        {limitations_html}
       </ul>
-    </div>
-    <div class="card">
-      <h3>Model Winner</h3>
-      <p>{report['winner']['name']} (F1: {report['winner']['f1']:.3f})</p>
-      <p class="muted">Chosen by best F1 score.</p>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Model Performance</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Model</th>
-          <th>Accuracy</th>
-          <th>Precision</th>
-          <th>Recall</th>
-          <th>F1</th>
-          <th>ROC-AUC</th>
-        </tr>
-      </thead>
-      <tbody>
-        {metrics_rows}
-      </tbody>
-    </table>
-  </div>
-
-  <div class="section">
-    <h2>Top Predictive Terms (Breakup vs Non-breakup)</h2>
-    <div class="grid">
-      <div class="card">
-        <h4>Breakup-indicative</h4>
-        <ul>{top_terms_html}</ul>
-      </div>
-      <div class="card">
-        <h4>Non-breakup indicative</h4>
-        <ul>{top_terms_neg_html}</ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Key Figures</h2>
-    <div class="grid">
-      {''.join(f'<img class="figure" src="{fig}" alt="{fig}" />' for fig in report['figures'])}
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Error Analysis</h2>
-    <p>{report['error_analysis']}</p>
-  </div>
-
-  <div class="section">
-    <h2>Limitations</h2>
-    <ul>
-      {''.join(f'<li>{item}</li>' for item in report['limitations'])}
-    </ul>
-  </div>
-
+    </section>
+  </main>
 </body>
 </html>
 """
@@ -268,10 +416,14 @@ def generate_markdown_report(report: dict, output_path: str) -> None:
         "## Executive Summary",
         report["executive_summary"],
         "",
+        "## Key Insights",
+        "\n".join(f"- {item}" for item in report["insights"]),
+        "",
         "## Dataset",
         f"- Total rows: {report['dataset']['total_rows']}",
         f"- Breakup posts: {report['dataset']['breakup_rows']}",
         f"- Non-breakup posts: {report['dataset']['non_breakup_rows']}",
+        f"- Breakup share: {report['dataset']['breakup_ratio']:.1%}",
         "",
         "## Model Performance",
         metrics_table,

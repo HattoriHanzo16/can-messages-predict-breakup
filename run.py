@@ -81,7 +81,8 @@ def build_report_payload(
     results: dict,
     top_terms: dict,
     winner: str,
-    figures: list[str],
+    figures: list[dict],
+    insights: list[str],
     error_analysis: str,
 ) -> dict:
     metrics_table = []
@@ -101,6 +102,7 @@ def build_report_payload(
     breakup_count = int(clean_df["breakup"].sum())
     total_rows = len(clean_df)
     non_breakup = total_rows - breakup_count
+    breakup_ratio = breakup_count / total_rows if total_rows else 0.0
 
     best_f1 = results[winner]["metrics"]["f1"]
     best_auc = results[winner]["metrics"]["roc_auc"]
@@ -117,10 +119,12 @@ def build_report_payload(
         "title": config["project"]["name"],
         "subtitle": config["project"]["description"],
         "executive_summary": executive_summary,
+        "insights": insights,
         "dataset": {
             "total_rows": total_rows,
             "breakup_rows": breakup_count,
             "non_breakup_rows": non_breakup,
+            "breakup_ratio": breakup_ratio,
         },
         "metrics_table": metrics_table,
         "top_terms": top_terms,
@@ -246,23 +250,68 @@ def main() -> None:
     def rel(path: Path) -> str:
         return str(path.relative_to(report_dir))
 
+    winner_title = winner.replace("_", " ").title()
+
     figures = [
-        rel(figures_dir / "class_balance.png"),
-        rel(figures_dir / "text_length_distribution.png"),
-        rel(figures_dir / "word_count_distribution.png"),
-        rel(figures_dir / "text_length_by_class.png"),
-        rel(figures_dir / "correlation_heatmap.png"),
+        {
+            "path": rel(figures_dir / "class_balance.png"),
+            "title": "Class Balance",
+            "caption": "Shows the distribution of breakup vs non-breakup posts. The dataset is mildly imbalanced.",
+        },
+        {
+            "path": rel(figures_dir / "text_length_distribution.png"),
+            "title": "Text Length Distribution",
+            "caption": "Most posts are short-to-medium length, with a long tail of detailed narratives.",
+        },
+        {
+            "path": rel(figures_dir / "word_count_distribution.png"),
+            "title": "Word Count Distribution",
+            "caption": "Word count mirrors text length, highlighting the prevalence of concise posts.",
+        },
+        {
+            "path": rel(figures_dir / "text_length_by_class.png"),
+            "title": "Text Length by Label",
+            "caption": "Breakup posts tend to be longer, suggesting more detailed emotional accounts.",
+        },
+        {
+            "path": rel(figures_dir / "correlation_heatmap.png"),
+            "title": "Feature Correlations",
+            "caption": "Highlights relationships among engineered signals (length, terms, sentiment, punctuation).",
+        },
     ]
-    figures.extend(rel(figures_dir / f"confusion_matrix_{name}.png") for name in results.keys())
+
+    for name in results.keys():
+        figures.append(
+            {
+                "path": rel(figures_dir / f"confusion_matrix_{name}.png"),
+                "title": f"Confusion Matrix: {name.replace('_', ' ').title()}",
+                "caption": "Shows how many posts were correctly and incorrectly classified.",
+            }
+        )
+
     figures.extend(
         [
-            rel(figures_dir / "roc_curves.png"),
-            rel(figures_dir / f"top_terms_{winner}.png"),
+            {
+                "path": rel(figures_dir / "roc_curves.png"),
+                "title": "ROC Curves",
+                "caption": "Compares model discrimination; higher curves indicate stronger separation.",
+            },
+            {
+                "path": rel(figures_dir / f"top_terms_{winner}.png"),
+                "title": f"Top Terms: {winner_title}",
+                "caption": "Top positive and negative terms from the best model.",
+            },
         ]
     )
 
+    insights = [
+        f"{winner_title} delivered the strongest F1 score and overall balance of precision/recall.",
+        "Breakup-related language (e.g., breakup, broke, miss, pain) dominates predictive terms.",
+        "Longer, more detailed posts are more common in breakup-labeled samples.",
+    ]
+
     error_analysis = (
-        f"The best model ({winner.replace('_', ' ')}) misclassified {len(misclass_df)} posts. "
+        f"The best model ({winner_title}) misclassified {len(misclass_df)} posts. "
         "False positives often involve general relationship conflict language, while false negatives "
         "tend to be subtle breakup narratives without explicit breakup terms."
     )
@@ -274,15 +323,18 @@ def main() -> None:
         top_terms=top_terms,
         winner=winner,
         figures=figures,
+        insights=insights,
         error_analysis=error_analysis,
     )
 
+    if config.get("reporting", {}).get("include_interactive", True):
+        interactive_path = Path(f"{config['output']['figures_dir']}/interactive_breakup_signals.html")
+        interactive_created = save_interactive_plot(clean_df, str(interactive_path))
+        if interactive_created:
+            report_payload["interactive_link"] = str(interactive_path.relative_to(report_dir))
+
     generate_html_report(report_payload, config["output"]["report_html"])
     generate_markdown_report(report_payload, config["output"]["report_md"])
-
-    if config.get("reporting", {}).get("include_interactive", True):
-        interactive_path = f"{config['output']['figures_dir']}/interactive_breakup_signals.html"
-        save_interactive_plot(clean_df, interactive_path)
 
     logging.info("Reports generated:")
     logging.info(f"- {config['output']['processed_path']}")
